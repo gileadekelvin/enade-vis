@@ -87,9 +87,8 @@ import_dados_ufcg <- function() {
     ensino_medio <- import_code_ensino_medio()
     motivo <- import_code_motivo()
     
-    cursos <- read.csv(here("data/nome-cursos-emec.csv"), stringsAsFactors = FALSE) %>% 
-        unite(nome_curso, CO_CURSO, NOME_CURSO, remove = FALSE, sep = " - ") %>% 
-        select(-NOME_CURSO)
+    cursos <- read.csv(here("data/nome-cursos-emec.csv"), stringsAsFactors = FALSE) %>%
+        select(co_curso = CO_CURSO, nome_curso = NOME_CURSO)
     
     dados_ufcg <- raw %>%
         select(CO_UF_CURSO, CO_IES, CO_CURSO, QE_I02, QE_I08, QE_I15, QE_I17, QE_I25) %>% 
@@ -101,16 +100,29 @@ import_dados_ufcg <- function() {
         left_join(motivo, by = c("QE_I25" = "codigo")) %>% 
         select(UF = CO_UF_CURSO, cod_Inst = CO_IES, cod_Curso = CO_CURSO, cor_raca, renda_num, renda_valor, renda, cota, ensino_medio, motivo) %>% 
         
-        left_join(cursos, by = c("cod_Curso" = "CO_CURSO"))
+        left_join(cursos, by = c("cod_Curso" = "co_curso"))
     
     return(dados_ufcg)
 }
 
+import_nome_cursos <- function() {
+    cursos <- read.csv(here("data/nome-cursos-emec.csv"), stringsAsFactors = FALSE) %>%
+        select(co_curso = CO_CURSO, nome_curso = NOME_CURSO) %>% 
+        group_by(nome_curso) %>% 
+        summarise(n = n()) %>% 
+        select(curso = nome_curso, -n) %>% 
+        arrange(curso)
+    
+    return(cursos)
+}
+
 write_data <- function(){
     library(tidyverse)
+    library(jsonlite)
     
     import_dados_ufcg_computacao() %>% write.csv(here("data/dados_ufcg_computacao.csv"), row.names = FALSE)
     import_dados_ufcg() %>% write.csv(here("data/dados_ufcg.csv"), row.names = FALSE)
+    import_nome_cursos() %>% jsonlite::toJSON() %>% write(here("data/cursos.json"))
 }
 
     
