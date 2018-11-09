@@ -14,6 +14,7 @@ import_code_renda <- function(){
                         renda_valor = c("até R$ 1.405,50", "R$ 1.405,51 a R$ 2.811,00", "R$ 2.811,01 a R$ 4.216,50", "R$ 4.216,51 a R$ 5.622,00", 
                                   "R$ 5. 622,01 a R$ 9.370,00", "R$ 9.370,01 a R$ 28.110,00", "mais de R$ 28.110,00"), 
                         renda = c("Baixíssima", "Baixa", "Média-baixa", "Média", "Média-alta", "Alta", "Altíssima"),
+                        renda_num = c(1, 2, 3, 4, 5, 6, 7),
                         stringsAsFactors = FALSE)
     return(renda)
 }
@@ -67,7 +68,7 @@ import_dados_ufcg_computacao <- function() {
         left_join(cotas, by = c("QE_I15" = "codigo")) %>% 
         left_join(ensino_medio, by = c("QE_I17" = "codigo")) %>% 
         left_join(motivo, by = c("QE_I25" = "codigo")) %>% 
-        select(UF = CO_UF_CURSO, cod_Inst = CO_IES, cod_Curso = CO_CURSO, cor_raca, renda_valor, renda, cota, ensino_medio, motivo) %>% 
+        select(UF = CO_UF_CURSO, cod_Inst = CO_IES, cod_Curso = CO_CURSO, cor_raca, renda_num, renda_valor, renda, cota, ensino_medio, motivo) %>% 
         
         # Código de Computação na UFCG é 13446
         filter(cod_Curso == 13446)
