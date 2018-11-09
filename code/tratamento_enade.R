@@ -69,7 +69,7 @@ import_dados_ufcg_computacao <- function() {
         left_join(ensino_medio, by = c("QE_I17" = "codigo")) %>% 
         left_join(motivo, by = c("QE_I25" = "codigo")) %>% 
         select(UF = CO_UF_CURSO, cod_Inst = CO_IES, cod_Curso = CO_CURSO, cor_raca, renda_num, renda_valor, renda, cota, ensino_medio, motivo) %>% 
-        
+        unite(id_renda_motivo, renda, motivo, remove = FALSE) %>% 
         # Código de Computação na UFCG é 13446
         filter(cod_Curso == 13446)
         
