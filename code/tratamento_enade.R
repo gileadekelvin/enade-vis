@@ -100,14 +100,14 @@ import_dados_ufcg <- function() {
         left_join(motivo, by = c("QE_I25" = "codigo")) %>% 
         select(UF = CO_UF_CURSO, cod_Inst = CO_IES, cod_Curso = CO_CURSO, cor_raca, renda_num, renda_valor, renda, cota, ensino_medio, motivo) %>% 
         
-        left_join(cursos, by = c("cod_Curso" = "co_curso"))
+        left_join(cursos, by = c("cod_Curso" = "co_curso")) %>% 
+        na.omit()
     
     return(dados_ufcg)
 }
 
 import_nome_cursos <- function() {
-    cursos <- read.csv(here("data/nome-cursos-emec.csv"), stringsAsFactors = FALSE) %>%
-        select(co_curso = CO_CURSO, nome_curso = NOME_CURSO) %>% 
+    cursos <- import_dados_ufcg() %>% 
         group_by(nome_curso) %>% 
         summarise(n = n()) %>% 
         select(curso = nome_curso, -n) %>% 
