@@ -75,10 +75,42 @@ import_dados_ufcg_computacao <- function() {
     return(dados_ufcg_computacao)
 }
 
+import_dados_ufcg <- function() {
+    library(tidyverse)
+    library(here)
+    
+    raw <- read.csv(here("data/enade_2017_ufcg.csv"), stringsAsFactors = FALSE)
+    
+    cor_raca <- import_code_raca()
+    renda <- import_code_renda()
+    cotas <- import_code_cotas()
+    ensino_medio <- import_code_ensino_medio()
+    motivo <- import_code_motivo()
+    
+    cursos <- read.csv(here("data/nome-cursos-emec.csv"), stringsAsFactors = FALSE) %>% 
+        unite(nome_curso, CO_CURSO, NOME_CURSO, remove = FALSE, sep = " - ") %>% 
+        select(-NOME_CURSO)
+    
+    dados_ufcg <- raw %>%
+        select(CO_UF_CURSO, CO_IES, CO_CURSO, QE_I02, QE_I08, QE_I15, QE_I17, QE_I25) %>% 
+        
+        left_join(cor_raca, by = c("QE_I02" = "codigo")) %>% 
+        left_join(renda, by = c("QE_I08" = "codigo")) %>% 
+        left_join(cotas, by = c("QE_I15" = "codigo")) %>% 
+        left_join(ensino_medio, by = c("QE_I17" = "codigo")) %>% 
+        left_join(motivo, by = c("QE_I25" = "codigo")) %>% 
+        select(UF = CO_UF_CURSO, cod_Inst = CO_IES, cod_Curso = CO_CURSO, cor_raca, renda_num, renda_valor, renda, cota, ensino_medio, motivo) %>% 
+        
+        left_join(cursos, by = c("cod_Curso" = "CO_CURSO"))
+    
+    return(dados_ufcg)
+}
+
 write_data <- function(){
     library(tidyverse)
     
     import_dados_ufcg_computacao() %>% write.csv(here("data/dados_ufcg_computacao.csv"), row.names = FALSE)
+    import_dados_ufcg() %>% write.csv(here("data/dados_ufcg.csv"), row.names = FALSE)
 }
 
     
